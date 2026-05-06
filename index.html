@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KITSUKI Awards Manager</title>
+    <style>
+        /* =========================================
+           CSSスタイル設定
+           ========================================= */
+        
+        :root {
+            --primary-blue: #3b82f6;
+            --primary-orange: #f97316;
+            --primary-green: #10b981;
+            --card-border: #fcd34d;
+            --bg-color: #fffdf0;
+            --text-main: #334155;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(#fde68a 15%, transparent 16%), 
+                radial-gradient(#fde68a 15%, transparent 16%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .sparkle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .sparkle {
+            position: absolute;
+            color: #fbbf24;
+            font-size: 24px;
+            opacity: 0;
+            animation: twinkle 4s infinite ease-in-out alternate;
+        }
+
+        @keyframes twinkle {
+            0% { transform: scale(0.8) translateY(0); opacity: 0.2; }
+            50% { opacity: 0.6; }
+            100% { transform: scale(1.2) translateY(-10px); opacity: 0.8; }
+        }
+
+        .card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 650px;
+            border-radius: 24px;
+            border: 4px solid var(--card-border);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 40px 30px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .title {
+            color: #1e40af;
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 16px;
+            margin: 0 0 20px 0;
+            font-weight: bold;
+        }
+
+        .date-badge {
+            display: inline-block;
+            background-color: #fef3c7;
+            color: #b45309;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: bold;
+            box-shadow: inset 0 0 0 1px #fde68a;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 18px 20px;
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            filter: brightness(1.05);
+        }
+
+        .btn-blue { background-color: var(--primary-blue); }
+        .btn-orange { background-color: var(--primary-orange); }
+        .btn-green { background-color: var(--primary-green); }
+
+        .btn-icon {
+            margin-right: 12px;
+            font-size: 22px;
+        }
+
+        /* 管理用パスワード入力エリア */
+        .password-box {
+            display: none;
+            margin: 20px 0 10px 0;
+            padding: 18px;
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .password-box p {
+            margin: 0 0 12px 0;
+            font-weight: bold;
+            color: #475569;
+        }
+
+        .password-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .password-input {
+            padding: 12px 14px;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 16px;
+            width: 180px;
+            box-sizing: border-box;
+        }
+
+        .password-submit {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--primary-green);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .password-cancel {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 12px;
+            background-color: #94a3b8;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .password-error {
+            display: none;
+            margin-top: 10px;
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .list-container {
+            display: none;
+            margin-top: 25px;
+            text-align: left;
+            background-color: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #cbd5e1;
+            padding-bottom: 12px;
+        }
+
+        .list-title {
+            font-weight: bold;
+            color: var(--primary-blue);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .list-count {
+            font-size: 14px;
+            color: #475569;
+            background: #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #cbd5e1;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: bold;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .footer-message {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 30px 20px;
+                border-radius: 20px;
+                border-width: 3px;
+            }
+
+            .title {
+                font-size: 26px;
+            }
+
+            .btn {
+                font-size: 16px;
+                padding: 16px 15px;
+            }
+
+            .btn-icon {
+                font-size: 20px;
+            }
+
+            .list-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景のきらめき装飾 -->
+    <div class="sparkle-container">
+        <span class="sparkle" style="top: 10%; left: 15%; animation-delay: 0s;">✨</span>
+        <span class="sparkle" style="top: 25%; left: 85%; animation-delay: 0.5s;">⭐</span>
+        <span class="sparkle" style="top: 80%; left: 12%; animation-delay: 1s;">🌟</span>
+        <span class="sparkle" style="top: 75%; left: 82%; animation-delay: 1.5s;">✨</span>
+        <span class="sparkle" style="top: 45%; left: 6%; animation-delay: 0.8s;">⭐</span>
+        <span class="sparkle" style="top: 40%; left: 92%; animation-delay: 1.2s;">✨</span>
+    </div>
+
+    <!-- 中央のメインカード -->
+    <div class="card">
+        <div class="header">
+            <h1 class="title">KITSUKI Awards Manager</h1>
+            <p class="subtitle">表彰記録・伝達管理システム</p>
+            <div class="date-badge" id="display-date">次回の表彰伝達日：----年--月--日</div>
+        </div>
+
+        <div class="button-group">
+            <button id="btn-list" class="btn btn-blue">
+                <span class="btn-icon">🏆</span> 次回の表彰伝達者一覧
+            </button>
+            <button id="btn-form" class="btn btn-orange">
+                <span class="btn-icon">📝</span> 表彰伝達・記録の入力
+            </button>
+            <button id="btn-admin" class="btn btn-green">
+                <span class="btn-icon">⚙️</span> 管理用
+            </button>
+        </div>
+
+        <!-- 管理用パスワード入力エリア -->
+        <div id="password-box" class="password-box">
+            <p>管理用ページを開くにはパスワードを入力してください。</p>
+            <div class="password-row">
+                <input id="admin-password-input" class="password-input" type="password" placeholder="パスワード">
+                <button id="admin-password-submit" class="password-submit">開く</button>
+                <button id="admin-password-cancel" class="password-cancel">キャンセル</button>
+            </div>
+            <div id="password-error" class="password-error">パスワードが違います。</div>
+        </div>
+
+        <!-- 表彰伝達者一覧エリア -->
+        <div id="list-container" class="list-container">
+            <div class="list-header">
+                <h2 class="list-title">次回の表彰伝達者一覧</h2>
+                <span id="award-count" class="list-count">対象者数：0名</span>
+            </div>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>生徒番号</th>
+                            <th>氏名</th>
+                            <th>ふりがな</th>
+                            <th>部活動名</th>
+                            <th>大会名</th>
+                            <th>成績・賞名</th>
+                        </tr>
+                    </thead>
+                    <tbody id="award-tbody">
+                        <!-- ここにJavaScriptでデータが挿入されます -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer-message">
+            表彰記録を、もっとスムーズに。🏆
+        </div>
+    </div>
+
+    <script>
+        // =========================================
+        // 設定
+        // =========================================
+
+        // Apps ScriptのWebアプリURL
+        const apiUrl = "https://script.google.com/a/macros/oen.ed.jp/s/AKfycbxxnQEh_EYYsm2tgM5zPHwvnr49szk7we5WjcI1d41VrPwh761gLLHRS-f4zvjAtUdD/exec";
+
+        // GoogleフォームのURL（表彰伝達・記録の入力）
+        const formUrl = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSe8ss5RunPFH7j9mlCx6pwEpav_9YYXuAGjTHfBrSY0a7z8mQ/viewform";
+
+        // GoogleスプレッドシートのURL（管理用）
+        const adminUrl = "https://docs.google.com/spreadsheets/d/1Ntv6Y1bzMfO1ZR6h9BKO3EqxevIURKRTa5qNC8ei7bI/edit?gid=1239812584#gid=1239812584";
+
+        // 管理用パスワード
+        const adminPassword = "32060";
+
+        // Apps Scriptから取得した表彰者データを入れる配列
+        let awardList = [];
+
+        // =========================================
+        // 画面読み込み時の処理
+        // =========================================
+        document.addEventListener("DOMContentLoaded", () => {
+            const dateElement = document.getElementById("display-date");
+            const formBtn = document.getElementById("btn-form");
+            const adminBtn = document.getElementById("btn-admin");
+            const listBtn = document.getElementById("btn-list");
+            const listContainer = document.getElementById("list-container");
+
+            const passwordBox = document.getElementById("password-box");
+            const passwordInput = document.getElementById("admin-password-input");
+            const passwordSubmit = document.getElementById("admin-password-submit");
+            const passwordCancel = document.getElementById("admin-password-cancel");
+            const passwordError = document.getElementById("password-error");
+
+            let isListVisible = false;
+
+            if (dateElement) {
+                dateElement.textContent = "次回の表彰伝達日：読み込み中...";
+            }
+
+            loadAwardData();
+
+            // 表彰伝達・記録の入力ボタン
+            if (formBtn) {
+                formBtn.addEventListener("click", () => {
+                    window.open(formUrl, "_blank");
+                });
+            }
+
+            // 管理用ボタン：パスワード入力欄を表示
+            if (adminBtn && passwordBox) {
+                adminBtn.addEventListener("click", () => {
+                    passwordBox.style.display = "block";
+
+                    if (passwordInput) {
+                        passwordInput.value = "";
+                        passwordInput.focus();
+                    }
+
+                    if (passwordError) {
+                        passwordError.style.display = "none";
+                    }
+                });
+            }
+
+            // パスワード確認ボタン
+            if (passwordSubmit) {
+                passwordSubmit.addEventListener("click", () => {
+                    if (passwordInput && passwordInput.value === adminPassword) {
+                        window.open(adminUrl, "_blank");
+                        passwordBox.style.display = "none";
+                    } else {
+                        if (passwordError) {
+                            passwordError.style.display = "block";
+                        }
+                    }
+                });
+            }
+
+            // キャンセルボタン
+            if (passwordCancel) {
+                passwordCancel.addEventListener("click", () => {
+                    passwordBox.style.display = "none";
+
+                    if (passwordError) {
+                        passwordError.style.display = "none";
+                    }
+                });
+            }
+
+            // Enterキーでも開けるようにする
+            if (passwordInput && passwordSubmit) {
+                passwordInput.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter") {
+                        passwordSubmit.click();
+                    }
+                });
+            }
+
+            // 次回の表彰伝達者一覧ボタン
+            if (listBtn && listContainer) {
+                listBtn.addEventListener("click", () => {
+                    isListVisible = !isListVisible;
+
+                    if (isListVisible) {
+                        renderTable(awardList);
+                        listContainer.style.display = "block";
+                    } else {
+                        listContainer.style.display = "none";
+                    }
+                });
+            }
+        });
+
+        // =========================================
+        // JSONP方式でApps Scriptからデータを読み込む
+        // =========================================
+        function loadAwardData() {
+            const script = document.createElement("script");
+            script.src = apiUrl + "?callback=handleAwardData";
+
+            script.onerror = function() {
+                const dateElement = document.getElementById("display-date");
+
+                if (dateElement) {
+                    dateElement.textContent = "次回の表彰伝達日：取得できませんでした";
+                }
+
+                awardList = [];
+            };
+
+            document.body.appendChild(script);
+        }
+
+        // Apps Scriptから返ってきたデータを受け取る関数
+        function handleAwardData(data) {
+            const dateElement = document.getElementById("display-date");
+
+            if (dateElement) {
+                dateElement.textContent = `次回の表彰伝達日：${data.nextAwardDate}`;
+            }
+
+            awardList = data.awardList || [];
+        }
+
+        // =========================================
+        // テーブル表示
+        // =========================================
+        function renderTable(data) {
+            const tbody = document.getElementById("award-tbody");
+            const countDisplay = document.getElementById("award-count");
+
+            if (countDisplay) {
+                countDisplay.textContent = `対象者数：${data.length}名`;
+            }
+
+            if (!tbody) return;
+
+            tbody.innerHTML = "";
+
+            if (data.length === 0) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td colspan="6" style="text-align:center; padding:20px; color:#64748b;">
+                        現在、次回の表彰伝達対象者はいません。
+                    </td>
+                `;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${item.number}</td>
+                    <td><strong>${item.name}</strong></td>
+                    <td style="font-size: 12px; color: #64748b;">${item.kana}</td>
+                    <td>${item.club}</td>
+                    <td>${item.event}</td>
+                    <td><span style="color: #ea580c; font-weight: bold;">${item.result}</span></td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
