@@ -367,17 +367,8 @@
     </div>
 
     <script>
-        // =========================================
-        // 設定
-        // =========================================
-
-        // Apps ScriptのWebアプリURL
         const apiUrl = "https://script.google.com/a/macros/oen.ed.jp/s/AKfycbxxnQEh_EYYsm2tgM5zPHwvnr49szk7we5WjcI1d41VrPwh761gLLHRS-f4zvjAtUdD/exec";
-
-        // GoogleフォームのURL（表彰伝達・記録の入力）
         const formUrl = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSe8ss5RunPFH7j9mlCx6pwEpav_9YYXuAGjTHfBrSY0a7z8mQ/viewform";
-
-        // GoogleスプレッドシートのURL（管理用）
         const adminUrl = "https://docs.google.com/spreadsheets/d/1Ntv6Y1bzMfO1ZR6h9BKO3EqxevIURKRTa5qNC8ei7bI/edit?gid=1239812584#gid=1239812584";
 
         // 管理用パスワード ※HTML内のパスワードは厳密なセキュリティではなく、簡易的な目隠しです。
@@ -397,76 +388,83 @@
             const adminBtn = document.getElementById("btn-admin");
             const listBtn = document.getElementById("btn-list");
             const listContainer = document.getElementById("list-container");
-
             const passwordBox = document.getElementById("password-box");
             const passwordInput = document.getElementById("admin-password-input");
             const passwordSubmit = document.getElementById("admin-password-submit");
             const passwordCancel = document.getElementById("admin-password-cancel");
             const passwordError = document.getElementById("password-error");
 
-            formBtn?.addEventListener("click", () => {
-                window.open(formUrl, "_blank");
-            });
+            if (formBtn) {
+                formBtn.addEventListener("click", () => {
+                    window.open(formUrl, "_blank");
+                });
+            }
 
-            adminBtn?.addEventListener("click", () => {
-                if (!passwordBox) return;
-                passwordBox.style.display = "block";
-                passwordInput.value = "";
-                passwordInput.focus();
-                passwordError.style.display = "none";
-            });
-
-            passwordSubmit?.addEventListener("click", () => {
-                if (passwordInput.value === adminPassword) {
-                    window.open(adminUrl, "_blank");
-                    passwordBox.style.display = "none";
-                } else {
-                    passwordError.style.display = "block";
-                }
-            });
-
-            passwordCancel?.addEventListener("click", () => {
-                passwordBox.style.display = "none";
-                passwordError.style.display = "none";
-            });
-
-            passwordInput?.addEventListener("keydown", (event) => {
-                if (event.key === "Enter") {
-                    passwordSubmit.click();
-                }
-            });
-
-            listBtn?.addEventListener("click", () => {
-                isListVisible = !isListVisible;
-
-                if (isListVisible) {
-                    if (!isDataLoaded) {
-                        renderMessageRow("表彰者データを読み込み中です。少し待ってからもう一度押してください。");
-                    } else {
-                        renderTable(awardList);
+            if (adminBtn) {
+                adminBtn.addEventListener("click", () => {
+                    if (!passwordBox) return;
+                    passwordBox.style.display = "block";
+                    if (passwordInput) {
+                        passwordInput.value = "";
+                        passwordInput.focus();
                     }
-                    listContainer.style.display = "block";
-                } else {
-                    listContainer.style.display = "none";
-                }
-            });
+                    if (passwordError) passwordError.style.display = "none";
+                });
+            }
+
+            if (passwordSubmit) {
+                passwordSubmit.addEventListener("click", () => {
+                    if (passwordInput && passwordInput.value === adminPassword) {
+                        window.open(adminUrl, "_blank");
+                        passwordBox.style.display = "none";
+                    } else if (passwordError) {
+                        passwordError.style.display = "block";
+                    }
+                });
+            }
+
+            if (passwordCancel) {
+                passwordCancel.addEventListener("click", () => {
+                    passwordBox.style.display = "none";
+                    if (passwordError) passwordError.style.display = "none";
+                });
+            }
+
+            if (passwordInput && passwordSubmit) {
+                passwordInput.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter") passwordSubmit.click();
+                });
+            }
+
+            if (listBtn && listContainer) {
+                listBtn.addEventListener("click", () => {
+                    isListVisible = !isListVisible;
+                    if (isListVisible) {
+                        if (!isDataLoaded) {
+                            renderMessageRow("表彰者データを読み込み中です。少し待ってからもう一度押してください。", false);
+                        } else {
+                            renderTable(awardList);
+                        }
+                        listContainer.style.display = "block";
+                    } else {
+                        listContainer.style.display = "none";
+                    }
+                });
+            }
         }
 
-        // =========================================
-        // JSONP方式でApps Scriptからデータを読み込む
-        // =========================================
         function loadAwardDataByJsonp() {
             const dateElement = document.getElementById("display-date");
             const statusMessage = document.getElementById("status-message");
 
-            dateElement.textContent = "次回の表彰伝達日：読み込み中...";
-            statusMessage.style.display = "none";
+            if (dateElement) dateElement.textContent = "次回の表彰伝達日：読み込み中...";
+            if (statusMessage) statusMessage.style.display = "none";
 
             const callbackName = "handleAwardData_" + Date.now();
             const script = document.createElement("script");
             const separator = apiUrl.includes("?") ? "&" : "?";
 
-            let timeoutId = setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 cleanup();
                 showLoadError("データ取得に時間がかかっています。ページを再読み込みしてください。");
             }, 12000);
@@ -480,15 +478,15 @@
             script.onerror = function() {
                 clearTimeout(timeoutId);
                 cleanup();
-                showLoadError("次回の表彰伝達日：取得できませんでした");
+                showLoadError("データ取得に失敗しました。ページを再読み込みしてください。");
             };
 
             script.src = apiUrl + separator + "callback=" + encodeURIComponent(callbackName) + "&t=" + Date.now();
             document.body.appendChild(script);
 
             function cleanup() {
-                delete window[callbackName];
-                script.remove();
+                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+                if (script.parentNode) script.parentNode.removeChild(script);
             }
         }
 
@@ -501,54 +499,44 @@
                 return;
             }
 
-            dateElement.textContent = `次回の表彰伝達日：${data.nextAwardDate || "未設定"}`;
+            if (dateElement) dateElement.textContent = `次回の表彰伝達日：${data.nextAwardDate || "未設定"}`;
             awardList = Array.isArray(data.awardList) ? data.awardList : [];
             isDataLoaded = true;
-            statusMessage.style.display = "none";
+            if (statusMessage) statusMessage.style.display = "none";
 
-            if (isListVisible) {
-                renderTable(awardList);
-            }
+            if (isListVisible) renderTable(awardList);
         }
 
         function showLoadError(message) {
             const dateElement = document.getElementById("display-date");
             const statusMessage = document.getElementById("status-message");
 
-            dateElement.textContent = "次回の表彰伝達日：取得できませんでした";
+            if (dateElement) dateElement.textContent = "次回の表彰伝達日：取得できませんでした";
             awardList = [];
             isDataLoaded = false;
 
-            statusMessage.textContent = message;
-            statusMessage.style.display = "block";
+            if (statusMessage) {
+                statusMessage.textContent = message;
+                statusMessage.style.display = "block";
+            }
         }
 
-        // =========================================
-        // テーブル表示
-        // =========================================
         function renderTable(data) {
             const tbody = document.getElementById("award-tbody");
             const countDisplay = document.getElementById("award-count");
+            if (!tbody || !countDisplay) return;
 
             countDisplay.textContent = `対象者数：${data.length}名`;
             tbody.innerHTML = "";
 
             if (data.length === 0) {
-                renderMessageRow("現在、次回の表彰伝達対象者はいません。");
+                renderMessageRow("現在、次回の表彰伝達対象者はいません。", true);
                 return;
             }
 
             data.forEach(item => {
                 const tr = document.createElement("tr");
-
-                const cells = [
-                    item.number,
-                    item.name,
-                    item.kana,
-                    item.club,
-                    item.event,
-                    item.result
-                ];
+                const cells = [item.number, item.name, item.kana, item.club, item.event, item.result];
 
                 cells.forEach((value, index) => {
                     const td = document.createElement("td");
@@ -578,11 +566,12 @@
             });
         }
 
-        function renderMessageRow(message) {
+        function renderMessageRow(message, setCountZero) {
             const tbody = document.getElementById("award-tbody");
             const countDisplay = document.getElementById("award-count");
+            if (!tbody) return;
 
-            if (countDisplay && message.includes("対象者はいません")) {
+            if (countDisplay && setCountZero) {
                 countDisplay.textContent = "対象者数：0名";
             }
 
