@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KITSUKI Awards Manager</title>
     <style>
-        /* =========================================
-           CSSスタイル設定
-           ========================================= */
-        
         :root {
             --primary-blue: #3b82f6;
             --primary-orange: #f97316;
@@ -24,8 +20,8 @@
             font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
             color: var(--text-main);
             background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(#fde68a 15%, transparent 16%), 
+            background-image:
+                radial-gradient(#fde68a 15%, transparent 16%),
                 radial-gradient(#fde68a 15%, transparent 16%);
             background-size: 40px 40px;
             background-position: 0 0, 20px 20px;
@@ -72,9 +68,7 @@
             text-align: center;
         }
 
-        .header {
-            margin-bottom: 30px;
-        }
+        .header { margin-bottom: 30px; }
 
         .title {
             color: #1e40af;
@@ -140,7 +134,18 @@
             font-size: 22px;
         }
 
-        /* 管理用パスワード入力エリア */
+        .status-message {
+            display: none;
+            margin: 0 0 18px 0;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+        }
+
         .password-box {
             display: none;
             margin: 20px 0 10px 0;
@@ -173,25 +178,18 @@
             box-sizing: border-box;
         }
 
-        .password-submit {
+        .password-submit,
+        .password-cancel {
             padding: 12px 18px;
             border: none;
             border-radius: 12px;
-            background-color: var(--primary-green);
             color: white;
             font-weight: bold;
             cursor: pointer;
         }
 
-        .password-cancel {
-            padding: 12px 18px;
-            border: none;
-            border-radius: 12px;
-            background-color: #94a3b8;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .password-submit { background-color: var(--primary-green); }
+        .password-cancel { background-color: #94a3b8; }
 
         .password-error {
             display: none;
@@ -285,18 +283,14 @@
                 border-width: 3px;
             }
 
-            .title {
-                font-size: 26px;
-            }
+            .title { font-size: 26px; }
 
             .btn {
                 font-size: 16px;
                 padding: 16px 15px;
             }
 
-            .btn-icon {
-                font-size: 20px;
-            }
+            .btn-icon { font-size: 20px; }
 
             .list-header {
                 flex-direction: column;
@@ -307,8 +301,6 @@
     </style>
 </head>
 <body>
-
-    <!-- 背景のきらめき装飾 -->
     <div class="sparkle-container">
         <span class="sparkle" style="top: 10%; left: 15%; animation-delay: 0s;">✨</span>
         <span class="sparkle" style="top: 25%; left: 85%; animation-delay: 0.5s;">⭐</span>
@@ -318,13 +310,14 @@
         <span class="sparkle" style="top: 40%; left: 92%; animation-delay: 1.2s;">✨</span>
     </div>
 
-    <!-- 中央のメインカード -->
     <div class="card">
         <div class="header">
             <h1 class="title">KITSUKI Awards Manager</h1>
             <p class="subtitle">表彰記録・伝達管理システム</p>
-            <div class="date-badge" id="display-date">次回の表彰伝達日：----年--月--日</div>
+            <div class="date-badge" id="display-date">次回の表彰伝達日：読み込み中...</div>
         </div>
+
+        <div id="status-message" class="status-message"></div>
 
         <div class="button-group">
             <button id="btn-list" class="btn btn-blue">
@@ -338,24 +331,21 @@
             </button>
         </div>
 
-        <!-- 管理用パスワード入力エリア -->
         <div id="password-box" class="password-box">
             <p>管理用ページを開くにはパスワードを入力してください。</p>
             <div class="password-row">
-                <input id="admin-password-input" class="password-input" type="password" placeholder="パスワード">
+                <input id="admin-password-input" class="password-input" type="password" placeholder="パスワード" autocomplete="off">
                 <button id="admin-password-submit" class="password-submit">開く</button>
                 <button id="admin-password-cancel" class="password-cancel">キャンセル</button>
             </div>
             <div id="password-error" class="password-error">パスワードが違います。</div>
         </div>
 
-        <!-- 表彰伝達者一覧エリア -->
         <div id="list-container" class="list-container">
             <div class="list-header">
                 <h2 class="list-title">次回の表彰伝達者一覧</h2>
                 <span id="award-count" class="list-count">対象者数：0名</span>
             </div>
-            
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -368,16 +358,12 @@
                             <th>成績・賞名</th>
                         </tr>
                     </thead>
-                    <tbody id="award-tbody">
-                        <!-- ここにJavaScriptでデータが挿入されます -->
-                    </tbody>
+                    <tbody id="award-tbody"></tbody>
                 </table>
             </div>
         </div>
 
-        <div class="footer-message">
-            表彰記録を、もっとスムーズに。🏆
-        </div>
+        <div class="footer-message">表彰記録を、もっとスムーズに。🏆</div>
     </div>
 
     <script>
@@ -394,17 +380,19 @@
         // GoogleスプレッドシートのURL（管理用）
         const adminUrl = "https://docs.google.com/spreadsheets/d/1Ntv6Y1bzMfO1ZR6h9BKO3EqxevIURKRTa5qNC8ei7bI/edit?gid=1239812584#gid=1239812584";
 
-        // 管理用パスワード
+        // 管理用パスワード ※HTML内のパスワードは厳密なセキュリティではなく、簡易的な目隠しです。
         const adminPassword = "32060";
 
-        // Apps Scriptから取得した表彰者データを入れる配列
         let awardList = [];
+        let isListVisible = false;
+        let isDataLoaded = false;
 
-        // =========================================
-        // 画面読み込み時の処理
-        // =========================================
         document.addEventListener("DOMContentLoaded", () => {
-            const dateElement = document.getElementById("display-date");
+            setupButtons();
+            loadAwardDataByJsonp();
+        });
+
+        function setupButtons() {
             const formBtn = document.getElementById("btn-form");
             const adminBtn = document.getElementById("btn-admin");
             const listBtn = document.getElementById("btn-list");
@@ -416,115 +404,123 @@
             const passwordCancel = document.getElementById("admin-password-cancel");
             const passwordError = document.getElementById("password-error");
 
-            let isListVisible = false;
+            formBtn?.addEventListener("click", () => {
+                window.open(formUrl, "_blank");
+            });
 
-            if (dateElement) {
-                dateElement.textContent = "次回の表彰伝達日：読み込み中...";
-            }
+            adminBtn?.addEventListener("click", () => {
+                if (!passwordBox) return;
+                passwordBox.style.display = "block";
+                passwordInput.value = "";
+                passwordInput.focus();
+                passwordError.style.display = "none";
+            });
 
-            loadAwardData();
-
-            // 表彰伝達・記録の入力ボタン
-            if (formBtn) {
-                formBtn.addEventListener("click", () => {
-                    window.open(formUrl, "_blank");
-                });
-            }
-
-            // 管理用ボタン：パスワード入力欄を表示
-            if (adminBtn && passwordBox) {
-                adminBtn.addEventListener("click", () => {
-                    passwordBox.style.display = "block";
-
-                    if (passwordInput) {
-                        passwordInput.value = "";
-                        passwordInput.focus();
-                    }
-
-                    if (passwordError) {
-                        passwordError.style.display = "none";
-                    }
-                });
-            }
-
-            // パスワード確認ボタン
-            if (passwordSubmit) {
-                passwordSubmit.addEventListener("click", () => {
-                    if (passwordInput && passwordInput.value === adminPassword) {
-                        window.open(adminUrl, "_blank");
-                        passwordBox.style.display = "none";
-                    } else {
-                        if (passwordError) {
-                            passwordError.style.display = "block";
-                        }
-                    }
-                });
-            }
-
-            // キャンセルボタン
-            if (passwordCancel) {
-                passwordCancel.addEventListener("click", () => {
+            passwordSubmit?.addEventListener("click", () => {
+                if (passwordInput.value === adminPassword) {
+                    window.open(adminUrl, "_blank");
                     passwordBox.style.display = "none";
+                } else {
+                    passwordError.style.display = "block";
+                }
+            });
 
-                    if (passwordError) {
-                        passwordError.style.display = "none";
-                    }
-                });
-            }
+            passwordCancel?.addEventListener("click", () => {
+                passwordBox.style.display = "none";
+                passwordError.style.display = "none";
+            });
 
-            // Enterキーでも開けるようにする
-            if (passwordInput && passwordSubmit) {
-                passwordInput.addEventListener("keydown", (event) => {
-                    if (event.key === "Enter") {
-                        passwordSubmit.click();
-                    }
-                });
-            }
+            passwordInput?.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    passwordSubmit.click();
+                }
+            });
 
-            // 次回の表彰伝達者一覧ボタン
-            if (listBtn && listContainer) {
-                listBtn.addEventListener("click", () => {
-                    isListVisible = !isListVisible;
+            listBtn?.addEventListener("click", () => {
+                isListVisible = !isListVisible;
 
-                    if (isListVisible) {
-                        renderTable(awardList);
-                        listContainer.style.display = "block";
+                if (isListVisible) {
+                    if (!isDataLoaded) {
+                        renderMessageRow("表彰者データを読み込み中です。少し待ってからもう一度押してください。");
                     } else {
-                        listContainer.style.display = "none";
+                        renderTable(awardList);
                     }
-                });
-            }
-        });
+                    listContainer.style.display = "block";
+                } else {
+                    listContainer.style.display = "none";
+                }
+            });
+        }
 
         // =========================================
         // JSONP方式でApps Scriptからデータを読み込む
         // =========================================
-        function loadAwardData() {
+        function loadAwardDataByJsonp() {
+            const dateElement = document.getElementById("display-date");
+            const statusMessage = document.getElementById("status-message");
+
+            dateElement.textContent = "次回の表彰伝達日：読み込み中...";
+            statusMessage.style.display = "none";
+
+            const callbackName = "handleAwardData_" + Date.now();
             const script = document.createElement("script");
-            script.src = apiUrl + "?callback=handleAwardData";
+            const separator = apiUrl.includes("?") ? "&" : "?";
 
-            script.onerror = function() {
-                const dateElement = document.getElementById("display-date");
+            let timeoutId = setTimeout(() => {
+                cleanup();
+                showLoadError("データ取得に時間がかかっています。ページを再読み込みしてください。");
+            }, 12000);
 
-                if (dateElement) {
-                    dateElement.textContent = "次回の表彰伝達日：取得できませんでした";
-                }
-
-                awardList = [];
+            window[callbackName] = function(data) {
+                clearTimeout(timeoutId);
+                cleanup();
+                applyAwardData(data);
             };
 
+            script.onerror = function() {
+                clearTimeout(timeoutId);
+                cleanup();
+                showLoadError("次回の表彰伝達日：取得できませんでした");
+            };
+
+            script.src = apiUrl + separator + "callback=" + encodeURIComponent(callbackName) + "&t=" + Date.now();
             document.body.appendChild(script);
+
+            function cleanup() {
+                delete window[callbackName];
+                script.remove();
+            }
         }
 
-        // Apps Scriptから返ってきたデータを受け取る関数
-        function handleAwardData(data) {
+        function applyAwardData(data) {
             const dateElement = document.getElementById("display-date");
+            const statusMessage = document.getElementById("status-message");
 
-            if (dateElement) {
-                dateElement.textContent = `次回の表彰伝達日：${data.nextAwardDate}`;
+            if (!data || typeof data !== "object") {
+                showLoadError("取得したデータの形式が正しくありません。");
+                return;
             }
 
-            awardList = data.awardList || [];
+            dateElement.textContent = `次回の表彰伝達日：${data.nextAwardDate || "未設定"}`;
+            awardList = Array.isArray(data.awardList) ? data.awardList : [];
+            isDataLoaded = true;
+            statusMessage.style.display = "none";
+
+            if (isListVisible) {
+                renderTable(awardList);
+            }
+        }
+
+        function showLoadError(message) {
+            const dateElement = document.getElementById("display-date");
+            const statusMessage = document.getElementById("status-message");
+
+            dateElement.textContent = "次回の表彰伝達日：取得できませんでした";
+            awardList = [];
+            isDataLoaded = false;
+
+            statusMessage.textContent = message;
+            statusMessage.style.display = "block";
         }
 
         // =========================================
@@ -534,39 +530,72 @@
             const tbody = document.getElementById("award-tbody");
             const countDisplay = document.getElementById("award-count");
 
-            if (countDisplay) {
-                countDisplay.textContent = `対象者数：${data.length}名`;
-            }
-
-            if (!tbody) return;
-
+            countDisplay.textContent = `対象者数：${data.length}名`;
             tbody.innerHTML = "";
 
             if (data.length === 0) {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td colspan="6" style="text-align:center; padding:20px; color:#64748b;">
-                        現在、次回の表彰伝達対象者はいません。
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                renderMessageRow("現在、次回の表彰伝達対象者はいません。");
                 return;
             }
 
             data.forEach(item => {
                 const tr = document.createElement("tr");
 
-                tr.innerHTML = `
-                    <td>${item.number}</td>
-                    <td><strong>${item.name}</strong></td>
-                    <td style="font-size: 12px; color: #64748b;">${item.kana}</td>
-                    <td>${item.club}</td>
-                    <td>${item.event}</td>
-                    <td><span style="color: #ea580c; font-weight: bold;">${item.result}</span></td>
-                `;
+                const cells = [
+                    item.number,
+                    item.name,
+                    item.kana,
+                    item.club,
+                    item.event,
+                    item.result
+                ];
+
+                cells.forEach((value, index) => {
+                    const td = document.createElement("td");
+                    td.textContent = value ?? "";
+
+                    if (index === 1) {
+                        const strong = document.createElement("strong");
+                        strong.textContent = value ?? "";
+                        td.textContent = "";
+                        td.appendChild(strong);
+                    }
+
+                    if (index === 2) {
+                        td.style.fontSize = "12px";
+                        td.style.color = "#64748b";
+                    }
+
+                    if (index === 5) {
+                        td.style.color = "#ea580c";
+                        td.style.fontWeight = "bold";
+                    }
+
+                    tr.appendChild(td);
+                });
 
                 tbody.appendChild(tr);
             });
+        }
+
+        function renderMessageRow(message) {
+            const tbody = document.getElementById("award-tbody");
+            const countDisplay = document.getElementById("award-count");
+
+            if (countDisplay && message.includes("対象者はいません")) {
+                countDisplay.textContent = "対象者数：0名";
+            }
+
+            tbody.innerHTML = "";
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 6;
+            td.style.textAlign = "center";
+            td.style.padding = "20px";
+            td.style.color = "#64748b";
+            td.textContent = message;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
         }
     </script>
 </body>
