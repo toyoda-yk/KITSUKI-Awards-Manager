@@ -68,7 +68,9 @@
             text-align: center;
         }
 
-        .header { margin-bottom: 30px; }
+        .header {
+            margin-bottom: 30px;
+        }
 
         .title {
             color: #1e40af;
@@ -125,16 +127,23 @@
             filter: brightness(1.05);
         }
 
-        .btn-blue { background-color: var(--primary-blue); }
-        .btn-orange { background-color: var(--primary-orange); }
-        .btn-green { background-color: var(--primary-green); }
+        .btn-blue {
+            background-color: var(--primary-blue);
+        }
+
+        .btn-orange {
+            background-color: var(--primary-orange);
+        }
+
+        .btn-green {
+            background-color: var(--primary-green);
+        }
 
         .btn-icon {
             margin-right: 12px;
             font-size: 22px;
         }
 
-        
         .password-box {
             display: none;
             margin: 20px 0 10px 0;
@@ -177,8 +186,13 @@
             cursor: pointer;
         }
 
-        .password-submit { background-color: var(--primary-green); }
-        .password-cancel { background-color: #94a3b8; }
+        .password-submit {
+            background-color: var(--primary-green);
+        }
+
+        .password-cancel {
+            background-color: #94a3b8;
+        }
 
         .password-error {
             display: none;
@@ -199,8 +213,15 @@
         }
 
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .list-header {
@@ -239,7 +260,8 @@
             min-width: 600px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px 10px;
             border-bottom: 1px solid #cbd5e1;
             font-size: 14px;
@@ -272,14 +294,18 @@
                 border-width: 3px;
             }
 
-            .title { font-size: 26px; }
+            .title {
+                font-size: 26px;
+            }
 
             .btn {
                 font-size: 16px;
                 padding: 16px 15px;
             }
 
-            .btn-icon { font-size: 20px; }
+            .btn-icon {
+                font-size: 20px;
+            }
 
             .list-header {
                 flex-direction: column;
@@ -289,6 +315,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="sparkle-container">
         <span class="sparkle" style="top: 10%; left: 15%; animation-delay: 0s;">✨</span>
@@ -306,14 +333,15 @@
             <div class="date-badge" id="display-date">次回の表彰伝達日：読み込み中...</div>
         </div>
 
-        
         <div class="button-group">
             <button id="btn-list" class="btn btn-blue">
                 <span class="btn-icon">🏆</span> 次回の表彰伝達者一覧
             </button>
+
             <button id="btn-form" class="btn btn-orange">
                 <span class="btn-icon">📝</span> 表彰伝達・記録の入力
             </button>
+
             <button id="btn-admin" class="btn btn-green">
                 <span class="btn-icon">⚙️</span> 管理用
             </button>
@@ -321,11 +349,14 @@
 
         <div id="password-box" class="password-box">
             <p>管理用ページを開くにはパスワードを入力してください。</p>
+
             <div class="password-row">
-                <input id="admin-password-input" class="password-input" type="password" placeholder="パスワード" autocomplete="off">
+                <input id="admin-password-input" class="password-input" type="password" placeholder="パスワード"
+                    autocomplete="off">
                 <button id="admin-password-submit" class="password-submit">開く</button>
                 <button id="admin-password-cancel" class="password-cancel">キャンセル</button>
             </div>
+
             <div id="password-error" class="password-error">パスワードが違います。</div>
         </div>
 
@@ -334,6 +365,7 @@
                 <h2 class="list-title">次回の表彰伝達者一覧</h2>
                 <span id="award-count" class="list-count">対象者数：0名</span>
             </div>
+
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -359,7 +391,7 @@
         const formUrl = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSe8ss5RunPFH7j9mlCx6pwEpav_9YYXuAGjTHfBrSY0a7z8mQ/viewform";
         const adminUrl = "https://docs.google.com/spreadsheets/d/1Ntv6Y1bzMfO1ZR6h9BKO3EqxevIURKRTa5qNC8ei7bI/edit?gid=1239812584#gid=1239812584";
 
-        // 管理用パスワード ※HTML内のパスワードは厳密なセキュリティではなく、簡易的な目隠しです。
+        // HTML内のパスワードは厳密なセキュリティではなく、簡易的な目隠しです。
         const adminPassword = "32060";
 
         let awardList = [];
@@ -376,6 +408,7 @@
             const adminBtn = document.getElementById("btn-admin");
             const listBtn = document.getElementById("btn-list");
             const listContainer = document.getElementById("list-container");
+
             const passwordBox = document.getElementById("password-box");
             const passwordInput = document.getElementById("admin-password-input");
             const passwordSubmit = document.getElementById("admin-password-submit");
@@ -391,12 +424,17 @@
             if (adminBtn) {
                 adminBtn.addEventListener("click", () => {
                     if (!passwordBox) return;
+
                     passwordBox.style.display = "block";
+
                     if (passwordInput) {
                         passwordInput.value = "";
                         passwordInput.focus();
                     }
-                    if (passwordError) passwordError.style.display = "none";
+
+                    if (passwordError) {
+                        passwordError.style.display = "none";
+                    }
                 });
             }
 
@@ -413,26 +451,35 @@
 
             if (passwordCancel) {
                 passwordCancel.addEventListener("click", () => {
-                    passwordBox.style.display = "none";
-                    if (passwordError) passwordError.style.display = "none";
+                    if (passwordBox) {
+                        passwordBox.style.display = "none";
+                    }
+
+                    if (passwordError) {
+                        passwordError.style.display = "none";
+                    }
                 });
             }
 
             if (passwordInput && passwordSubmit) {
                 passwordInput.addEventListener("keydown", (event) => {
-                    if (event.key === "Enter") passwordSubmit.click();
+                    if (event.key === "Enter") {
+                        passwordSubmit.click();
+                    }
                 });
             }
 
             if (listBtn && listContainer) {
                 listBtn.addEventListener("click", () => {
                     isListVisible = !isListVisible;
+
                     if (isListVisible) {
                         if (!isDataLoaded) {
                             renderMessageRow("表彰者データを読み込み中です。少し待ってからもう一度押してください。", false);
                         } else {
                             renderTable(awardList);
                         }
+
                         listContainer.style.display = "block";
                     } else {
                         listContainer.style.display = "none";
@@ -443,10 +490,10 @@
 
         function loadAwardDataByJsonp() {
             const dateElement = document.getElementById("display-date");
-            const statusMessage = document.getElementById("status-message");
 
-            if (dateElement) dateElement.textContent = "次回の表彰伝達日：読み込み中...";
-            if (statusMessage) statusMessage.style.display = "none";
+            if (dateElement) {
+                dateElement.textContent = "次回の表彰伝達日：読み込み中...";
+            }
 
             const callbackName = "handleAwardData_" + Date.now();
             const script = document.createElement("script");
@@ -454,64 +501,72 @@
 
             const timeoutId = setTimeout(() => {
                 cleanup();
-                showLoadError("データ取得に時間がかかっています。ページを再読み込みしてください。");
+                showLoadError();
             }, 12000);
 
-            window[callbackName] = function(data) {
+            window[callbackName] = function (data) {
                 clearTimeout(timeoutId);
                 cleanup();
                 applyAwardData(data);
             };
 
-            script.onerror = function() {
+            script.onerror = function () {
                 clearTimeout(timeoutId);
                 cleanup();
-                showLoadError("データ取得に失敗しました。ページを再読み込みしてください。");
+                showLoadError();
             };
 
             script.src = apiUrl + separator + "callback=" + encodeURIComponent(callbackName) + "&t=" + Date.now();
             document.body.appendChild(script);
 
             function cleanup() {
-                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
-                if (script.parentNode) script.parentNode.removeChild(script);
+                try {
+                    delete window[callbackName];
+                } catch (e) {
+                    window[callbackName] = undefined;
+                }
+
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
             }
         }
 
         function applyAwardData(data) {
             const dateElement = document.getElementById("display-date");
-            const statusMessage = document.getElementById("status-message");
 
             if (!data || typeof data !== "object") {
-                showLoadError("取得したデータの形式が正しくありません。");
+                showLoadError();
                 return;
             }
 
-            if (dateElement) dateElement.textContent = `次回の表彰伝達日：${data.nextAwardDate || "未設定"}`;
+            if (dateElement) {
+                dateElement.textContent = `次回の表彰伝達日：${data.nextAwardDate || "未設定"}`;
+            }
+
             awardList = Array.isArray(data.awardList) ? data.awardList : [];
             isDataLoaded = true;
-            if (statusMessage) statusMessage.style.display = "none";
 
-            if (isListVisible) renderTable(awardList);
+            if (isListVisible) {
+                renderTable(awardList);
+            }
         }
 
-        function showLoadError(message) {
+        function showLoadError() {
             const dateElement = document.getElementById("display-date");
-            const statusMessage = document.getElementById("status-message");
 
-            if (dateElement) dateElement.textContent = "次回の表彰伝達日：取得できませんでした";
+            if (dateElement) {
+                dateElement.textContent = "次回の表彰伝達日：取得できませんでした";
+            }
+
             awardList = [];
             isDataLoaded = false;
-
-            if (statusMessage) {
-                statusMessage.textContent = message;
-                statusMessage.style.display = "block";
-            }
         }
 
         function renderTable(data) {
             const tbody = document.getElementById("award-tbody");
             const countDisplay = document.getElementById("award-count");
+
             if (!tbody || !countDisplay) return;
 
             countDisplay.textContent = `対象者数：${data.length}名`;
@@ -524,7 +579,14 @@
 
             data.forEach(item => {
                 const tr = document.createElement("tr");
-                const cells = [item.number, item.name, item.kana, item.club, item.event, item.result];
+                const cells = [
+                    item.number,
+                    item.name,
+                    item.kana,
+                    item.club,
+                    item.event,
+                    item.result
+                ];
 
                 cells.forEach((value, index) => {
                     const td = document.createElement("td");
@@ -557,6 +619,7 @@
         function renderMessageRow(message, setCountZero) {
             const tbody = document.getElementById("award-tbody");
             const countDisplay = document.getElementById("award-count");
+
             if (!tbody) return;
 
             if (countDisplay && setCountZero) {
@@ -564,13 +627,16 @@
             }
 
             tbody.innerHTML = "";
+
             const tr = document.createElement("tr");
             const td = document.createElement("td");
+
             td.colSpan = 6;
             td.style.textAlign = "center";
             td.style.padding = "20px";
             td.style.color = "#64748b";
             td.textContent = message;
+
             tr.appendChild(td);
             tbody.appendChild(tr);
         }
